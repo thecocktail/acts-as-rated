@@ -190,12 +190,13 @@ module ActiveRecord #:nodoc:
         def rate value, rater = nil
           # Sanity checks for the parameters
           rating_class = acts_as_rated_options[:rating_class].constantize
-          with_rater = rating_class.column_names.include? "rater_id"
-          raise RateError, "rating with no rater cannot accept a rater as a parameter" if !with_rater && !rater.nil?
+          with_rater_column = rating_class.column_names.include? "rater_id"
+          with_rater =  !rater.nil?
+          raise RateError, "rating with no rater cannot accept a rater as a parameter" if !with_rater_column && !rater.nil?
           if with_rater && !(acts_as_rated_options[:rater_class].constantize === rater)
             raise RateError, "the rater object must be the one used when defining acts_as_rated (or a descendent of it). other objects are not acceptable"
           end
-          raise RateError, "rating with rater must receive a rater as parameter" if with_rater && (rater.nil? || rater.id.nil?)
+          #raise RateError, "rating with rater must receive a rater as parameter" if with_rater && (rater.nil? || rater.id.nil?)
           r = with_rater ? ratings.find(:first, :conditions => ['rater_id = ?', rater.id]) : nil
           raise RateError, "value is out of range!" unless acts_as_rated_options[:rating_range].nil? || acts_as_rated_options[:rating_range] === value
           
